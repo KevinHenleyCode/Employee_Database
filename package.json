@@ -1,0 +1,24 @@
+{
+  "name": "employee_database",
+  "version": "1.0.0",
+  "description": "A database containing information on employees",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KevinHenleyCode/Employee_Database.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KevinHenleyCode/Employee_Database/issues"
+  },
+  "homepage": "https://github.com/KevinHenleyCode/Employee_Database#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.7"
+  }
+}
