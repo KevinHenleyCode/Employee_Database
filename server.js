@@ -2,7 +2,8 @@ const express = require('express')
 const app = express()
 const mysql = require('mysql')
 const fs = require('fs')
-
+const inquirer = require('inquirer')
+const question = require('./js/index')
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -22,7 +23,7 @@ connection.connect((err) => {
 
 const createTables = () => {
     connection.query(`
-    CREATE TABLE employee(
+    CREATE TABLE IF NOT EXISTS employee(
         id int AUTO_INCREMENT PRIMARY KEY,
         first_name VARCHAR(30),
         last_name VARCHAR(30),
@@ -31,11 +32,10 @@ const createTables = () => {
     );`, (err, res) => {
         
             if (err) throw err;
-        console.log(`(employee) table created!`);
     })
 
     connection.query(`
-    CREATE TABLE role(
+    CREATE TABLE IF NOT EXISTS role(
         id int AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(30),
         salary DECIMAL,
@@ -43,18 +43,19 @@ const createTables = () => {
     );`, (err, res) => {
         
             if (err) throw err;
-        console.log(`(role) table created!`);
     })
 
     connection.query(`
-    CREATE TABLE department(
+    CREATE TABLE IF NOT EXISTS department(
         id int AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(30)
     );`, (err, res) => {
         
             if (err) throw err;
-        console.log(`(department) table created!`);
+        })
+        
+        console.log(`Tables created!`);
+        question.qStart()
         connection.end()
-    })
 }
 
