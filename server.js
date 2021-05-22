@@ -315,7 +315,7 @@ const deleteEmployee = () => {
         {
             type: 'input',
             name: 'firstName',
-            message: "Type the first name of the role you'd like to delete."
+            message: "Type the first name of the employee you'd like to delete."
         }
     ])
         .then((employeeData) => {
