@@ -231,9 +231,100 @@ const addEmployee = () => {
 
 
 const qDelete = () => {
-        
-    console.log(`Ready to delete some info??`);
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'add',
+            message: 'What would you like to delete?',
+            choices: ['Department', 'Role', 'Employee']
+        }
+    ])
+        .then((addData) => {
+            switch (addData.add) {
+                case 'Department':
+                    deleteDepartment()
+                    break;
+                case 'Role':
+                    deleteRole()
+                    break;
+                case 'Employee':
+                    deleteEmployee()
+                    break;
+            }
+        });
 }
+
+const deleteDepartment = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'depName',
+            message: "Type the Name of the department you'd like to delete."
+        }
+    ])
+        .then((depData) => {
+            connection.query(`
+            DELETE FROM department
+            WHERE name = '${depData.depName}';
+            `, (err, res) => {
+
+                if (err) throw err;
+            })
+
+            qStart()
+        });
+}
+
+const deleteRole = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'roleTitle',
+            message: "Type the Title of the role you'd like to delete."
+        }
+    ])
+        .then((roleData) => {
+            connection.query(`
+            DELETE FROM role
+            WHERE title = '${roleData.roleTitle}';
+            `, (err, res) => {
+
+                if (err) throw err;
+            })
+
+            qStart()
+        });
+}
+
+const deleteEmployee = () => {
+
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'firstName',
+            message: "Type the first name of the role you'd like to delete."
+        }
+    ])
+        .then((employeeData) => {
+            connection.query(`
+            DELETE FROM employee
+            WHERE first_name = '${employeeData.firstName}';
+            `, (err, res) => {
+
+                if (err) throw err;
+            })
+
+            qStart()
+        });
+}
+
+
+
+
+
+
+
+
 const qView = () => {
         
     console.log(`Ready to view some info??`);
