@@ -37,16 +37,14 @@ const createDatabase = () => {
 
 
 const createTables = () => {
+
     connection.query(`
-    CREATE TABLE IF NOT EXISTS employee(
+    CREATE TABLE IF NOT EXISTS department(
         id int AUTO_INCREMENT PRIMARY KEY,
-        first_name VARCHAR(30),
-        last_name VARCHAR(30),
-        role_id INT,
-        manager_id INT
+        name VARCHAR(30)
     );`, (err, res) => {
-        
-            if (err) throw err;
+
+        if (err) throw err;
     })
 
     connection.query(`
@@ -54,24 +52,29 @@ const createTables = () => {
         id int AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(30),
         salary DECIMAL,
-        department_id INT
+        department_id INT, 
+        FOREIGN KEY(department_id) REFERENCES department(id)
+    );`, (err, res) => {
+
+        if (err) throw err;
+    })
+
+    connection.query(`
+    CREATE TABLE IF NOT EXISTS employee(
+        id int AUTO_INCREMENT PRIMARY KEY,
+        first_name VARCHAR(30),
+        last_name VARCHAR(30),
+        role_id INT,
+        manager_id INT, 
+        FOREIGN KEY(role_id) REFERENCES role(id),
+        FOREIGN KEY(manager_id) REFERENCES employee(id)
     );`, (err, res) => {
         
             if (err) throw err;
     })
 
-    connection.query(`
-    CREATE TABLE IF NOT EXISTS department(
-        id int AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(30)
-    );`, (err, res) => {
-        
-            if (err) throw err;
-        })
-        
         console.log(`Tables created!\n`);
         qStart()
-        connection.end()
 }
 
     
@@ -83,11 +86,6 @@ const qStart = () => {
             name: 'mainMenu',
             message: 'How may I help you?',
             choices: ['Add Info', 'Delete Info', 'View Info', 'Exit']
-        },
-        {
-            type: 'input',
-            name: 'next',
-            message: 'What can I do next?'
         }
     ])
     .then((userInput) => {
@@ -106,18 +104,14 @@ const qStart = () => {
                 break;
             default:
                 console.log('See you next time!!');
+                connection.end();
                 break;
         }
     });
 }
 
 
-
-
-    
 const qAdd = () => {
-        
-    console.log(`Ready to add some info??`);
 
     inquirer.prompt([
         {
@@ -125,11 +119,6 @@ const qAdd = () => {
             name: 'add',
             message: 'What would you like to add?',
             choices: ['Department', 'Role', 'Employee']
-        },
-        {
-            type: 'input',
-            name: 'next',
-            message: 'What can I do next?'
         }
     ])
         .then((addData) => {
@@ -148,13 +137,88 @@ const qAdd = () => {
 }
 
 const addDepartment = () => {
-    
-}
-const addRole = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'depName',
+            message: 'Type the name of the new department.'
+        }
+    ])
+    .then((depData) => {
+        connection.query(`
+            INSERT INTO department(name)
+            VALUES ('${depData.depName}');
+            `, (err, res) => {
 
+                if (err) throw err;
+        })
+
+        qStart()
+    });  
 }
+
+const addRole = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'roleTitle',
+            message: 'Enter the title of this role.'
+        },
+        {
+            type: 'input',
+            name: 'roleSalary',
+            message: "What's the salary?"
+        },
+    ])
+        .then((roleData) => {
+            connection.query(`
+            INSERT INTO role(title, salary)
+            VALUES ('${roleData.roleTitle}', ${roleData.roleSalary});
+            `, (err, res) => {
+
+                if (err) throw err;
+            })
+
+            qStart()
+        });
+}
+
 const addEmployee = () => {
 
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'firstName',
+            message: 'Please enter the first name.'
+        },
+        {
+            type: 'input',
+            name: 'lastName',
+            message: 'And the last name.'
+        },
+        {
+            type: 'input',
+            name: 'roleID',
+            message: 'Enter the the role id.'
+        },
+        {
+            type: 'input',
+            name: 'managerCheck',
+            message: 'Are they a manager? Type 1(Yes) 0(No)'
+        },
+    ])
+        .then((employeeData) => {
+
+            connection.query(`
+            INSERT INTO employee(first_name, last_name, role_id, manager_id)
+            VALUES ('${employeeData.firstName}', '${employeeData.lastName}', '${employeeData.roleID}', '${employeeData.managerCheck}');
+            `, (err, res) => {
+
+                if (err) throw err;
+            })
+
+            qStart()
+        });
 }
 
 
