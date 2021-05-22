@@ -6,6 +6,8 @@ const inquirer = require('inquirer')
 const consoleTable = require('console.table')
 const { userInfo } = require('os')
 
+
+// creates a connection to the database
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -15,6 +17,7 @@ const connection = mysql.createConnection({
 });
 
 
+// lets the user know that they are connected
 connection.connect((err) => {
     if (err) throw err;
     console.log(`Connected as ID: ${connection.threadId}.\n`);
@@ -22,6 +25,7 @@ connection.connect((err) => {
 })
 
 
+// creates the database
 const createDatabase = () => {
     connection.query(`
     CREATE DATABASE IF NOT EXISTS employee_database;
@@ -35,8 +39,7 @@ const createDatabase = () => {
 }
 
 
-
-
+// checks to see if the tables are made, if not then it creates them
 const createTables = () => {
 
     connection.query(`
@@ -80,6 +83,7 @@ const createTables = () => {
 }
 
 
+// creates the main menu for the user
 const qStart = () => {
 
     inquirer.prompt([
@@ -112,8 +116,7 @@ const qStart = () => {
 
 
 
-
-
+// handles all of the add prompts_______________________________________
 const qAdd = () => {
 
     inquirer.prompt([
@@ -142,6 +145,7 @@ const qAdd = () => {
         });
 }
 
+// adds a department
 const addDepartment = () => {
     inquirer.prompt([
         {
@@ -163,6 +167,7 @@ const addDepartment = () => {
     });  
 }
 
+// adds a role
 const addRole = () => {
     inquirer.prompt([
         {
@@ -194,6 +199,7 @@ const addRole = () => {
         });
 }
 
+// adds an employee
 const addEmployee = () => {
 
     inquirer.prompt([
@@ -230,12 +236,7 @@ const addEmployee = () => {
 
 
 
-
-
-
-
-
-
+// handles all of the delete prompts_____________________________________
 const qDelete = () => {
     inquirer.prompt([
         {
@@ -263,6 +264,7 @@ const qDelete = () => {
         });
 }
 
+// deletes a department
 const deleteDepartment = () => {
     inquirer.prompt([
         {
@@ -284,6 +286,7 @@ const deleteDepartment = () => {
         });
 }
 
+// deletes a role
 const deleteRole = () => {
     inquirer.prompt([
         {
@@ -305,6 +308,7 @@ const deleteRole = () => {
         });
 }
 
+// deletes an employee
 const deleteEmployee = () => {
 
     inquirer.prompt([
@@ -329,11 +333,7 @@ const deleteEmployee = () => {
 
 
 
-
-
-
-
-
+// handles all of the view prompts_____________________________________
 const qView = () => {
 
     inquirer.prompt([
@@ -374,7 +374,7 @@ const qView = () => {
         });
 }
 
-
+// views a specific department
 const viewDepartment = () => {
     inquirer.prompt([
         {
@@ -398,6 +398,7 @@ const viewDepartment = () => {
         });
 }
 
+// views a specific role
 const viewRole = () => {
     inquirer.prompt([
         {
@@ -421,13 +422,14 @@ const viewRole = () => {
         });
 }
 
+// views a specific employee
 const viewEmployee = () => {
 
     inquirer.prompt([
         {
             type: 'input',
             name: 'employeeName',
-            message: "Enter first name"
+            message: "Enter first name."
         }
     ])
         .then((employeeData) => {
@@ -445,11 +447,12 @@ const viewEmployee = () => {
         });
 }
 
+// views all departments
 const viewAllDeps = () => {
     inquirer.prompt([
         {
             type: 'list',
-            name: 'employeeName',
+            name: 'dep',
             message: "Select (View Table)",
             choices: ['View Table']
         }
@@ -468,11 +471,12 @@ const viewAllDeps = () => {
         });
 }
 
+// views all roles
 const viewAllRoles = () => {
     inquirer.prompt([
         {
             type: 'list',
-            name: 'roleName',
+            name: 'role',
             message: "Select (View Table)",
             choices: ['View Table']
         }
@@ -491,17 +495,18 @@ const viewAllRoles = () => {
         });
 }
 
+// views all employees
 const viewAllEms = () => {
 
     inquirer.prompt([
         {
             type: 'list',
-            name: 'emsName',
+            name: 'ems',
             message: "Select (View Table)",
             choices: ['View Table']
         }
     ])
-        .then((depData) => {
+        .then((emsData) => {
             connection.query(`
             SELECT
             employee.first_name,
@@ -523,10 +528,7 @@ const viewAllEms = () => {
         });
 }
 
-
-
-
-
+// views all tables
 const viewAll = () => {
 
     inquirer.prompt([
