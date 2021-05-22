@@ -3,6 +3,7 @@ const app = express()
 const mysql = require('mysql')
 const fs = require('fs')
 const inquirer = require('inquirer')
+const consoleTable = require('console.table')
 const { userInfo } = require('os')
 
 const connection = mysql.createConnection({
@@ -52,8 +53,9 @@ const createTables = () => {
         id int AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(30),
         salary DECIMAL,
-        department_id INT, 
-        FOREIGN KEY(department_id) REFERENCES department(id)
+        department_id INT,
+        FOREIGN KEY (department_id) REFERENCES department(id)
+
     );`, (err, res) => {
 
         if (err) throw err;
@@ -66,8 +68,8 @@ const createTables = () => {
         last_name VARCHAR(30),
         role_id INT,
         manager_id INT, 
-        FOREIGN KEY(role_id) REFERENCES role(id),
-        FOREIGN KEY(manager_id) REFERENCES employee(id)
+        FOREIGN KEY (role_id) REFERENCES role(id),
+        FOREIGN KEY (manager_id) REFERENCES department(id)
     );`, (err, res) => {
         
             if (err) throw err;
@@ -77,7 +79,7 @@ const createTables = () => {
         qStart()
 }
 
-    
+
 const qStart = () => {
 
     inquirer.prompt([
@@ -85,21 +87,18 @@ const qStart = () => {
             type: 'list',
             name: 'mainMenu',
             message: 'How may I help you?',
-            choices: ['Add Info', 'Delete Info', 'View Info', 'Exit']
+            choices: ['Add Info', 'Delete Info', 'View Info', 'Exit\n']
         }
     ])
     .then((userInput) => {
         switch (userInput.mainMenu) {
             case 'Add Info':
-                console.log(`Okay let's Add some info!!`);
                 qAdd()
                 break;
             case 'Delete Info':
-                console.log(`Okay let's Delete some info!!`);
                 qDelete()
                 break;
             case 'View Info':
-                console.log(`Okay let's View some info!!`);
                 qView()
                 break;
             default:
@@ -111,6 +110,10 @@ const qStart = () => {
 }
 
 
+
+
+
+
 const qAdd = () => {
 
     inquirer.prompt([
@@ -118,7 +121,7 @@ const qAdd = () => {
             type: 'list',
             name: 'add',
             message: 'What would you like to add?',
-            choices: ['Department', 'Role', 'Employee']
+            choices: ['Department', 'Role', 'Employee', 'Main Menu\n']
         }
     ])
         .then((addData) => {
@@ -131,6 +134,9 @@ const qAdd = () => {
                     break;
                 case 'Employee':
                     addEmployee()
+                    break;
+                case 'Main Menu\n':
+                    qStart()
                     break;
             }
         });
@@ -169,11 +175,16 @@ const addRole = () => {
             name: 'roleSalary',
             message: "What's the salary?"
         },
+        {
+            type: 'input',
+            name: 'roleDep',
+            message: "Enter your department id."
+        },
     ])
         .then((roleData) => {
             connection.query(`
-            INSERT INTO role(title, salary)
-            VALUES ('${roleData.roleTitle}', ${roleData.roleSalary});
+            INSERT INTO role(title, salary, department_id)
+            VALUES ('${roleData.roleTitle}', ${roleData.roleSalary}, ${roleData.roleDep});
             `, (err, res) => {
 
                 if (err) throw err;
@@ -199,19 +210,14 @@ const addEmployee = () => {
         {
             type: 'input',
             name: 'roleID',
-            message: 'Enter the the role id.'
-        },
-        {
-            type: 'input',
-            name: 'managerCheck',
-            message: 'Are they a manager? Type 1(Yes) 0(No)'
-        },
+            message: 'Add role ID.'
+        }
     ])
         .then((employeeData) => {
 
             connection.query(`
-            INSERT INTO employee(first_name, last_name, role_id, manager_id)
-            VALUES ('${employeeData.firstName}', '${employeeData.lastName}', '${employeeData.roleID}', '${employeeData.managerCheck}');
+            INSERT INTO employee(first_name, last_name, role_id)
+            VALUES ('${employeeData.firstName}', '${employeeData.lastName}', ${employeeData.roleID});
             `, (err, res) => {
 
                 if (err) throw err;
@@ -236,7 +242,7 @@ const qDelete = () => {
             type: 'list',
             name: 'add',
             message: 'What would you like to delete?',
-            choices: ['Department', 'Role', 'Employee']
+            choices: ['Department', 'Role', 'Employee', 'Main Menu\n']
         }
     ])
         .then((addData) => {
@@ -249,6 +255,9 @@ const qDelete = () => {
                     break;
                 case 'Employee':
                     deleteEmployee()
+                    break;
+                case 'Main Menu\n':
+                    qStart()
                     break;
             }
         });
@@ -326,6 +335,229 @@ const deleteEmployee = () => {
 
 
 const qView = () => {
-        
-    console.log(`Ready to view some info??`);
+
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'add',
+            message: 'What would you like to delete?',
+            choices: ['Department', 'Role', 'Employee', 'All Departments', 'All Roles', 'All Employees', 'All Data', 'Main Menu\n']
+        }
+    ])
+        .then((addData) => {
+            switch (addData.add) {
+                case 'Department':
+                    viewDepartment()
+                    break;
+                case 'Role':
+                    viewRole()
+                    break;
+                case 'Employee':
+                    viewEmployee()
+                    break;
+                case 'All Departments':
+                    viewAllDeps()
+                    break;
+                case 'All Roles':
+                    viewAllRoles()
+                    break;
+                case 'All Employees':
+                    viewAllEms()
+                    break;
+                case 'All Data':
+                    viewAll()
+                    break;
+                case 'Main Menu\n':
+                    qStart()
+                    break;
+            }
+        });
+}
+
+
+const viewDepartment = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'depName',
+            message: "Enter department name."
+        }
+    ])
+        .then((depData) => {
+            connection.query(`
+            SELECT * FROM department WHERE name = '${depData.depName}';
+            `, (err, res) => {
+
+                if (err) throw err;
+                console.table(`\n`);
+                console.table(res);
+            })
+            // console.log(test.firstName)
+
+            qStart()
+        });
+}
+
+const viewRole = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'roleTitle',
+            message: "Enter role title."
+        }
+    ])
+        .then((roleData) => {
+            connection.query(`
+            SELECT * FROM role WHERE title = '${roleData.roleTitle}';
+            `, (err, res) => {
+
+                if (err) throw err;
+                console.table(`\n`);
+                console.table(res);
+            })
+            // console.log(test.firstName)
+
+            qStart()
+        });
+}
+
+const viewEmployee = () => {
+
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'employeeName',
+            message: "Enter first name"
+        }
+    ])
+        .then((employeeData) => {
+            connection.query(`
+            SELECT * FROM employee WHERE first_name = '${employeeData.employeeName}';
+            `, (err, res) => {
+
+                if (err) throw err;
+                console.table(`\n`);
+                console.table(res);
+            })
+            // console.log(test.firstName)
+
+            qStart()
+        });
+}
+
+const viewAllDeps = () => {
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'employeeName',
+            message: "Select (View Table)",
+            choices: ['View Table']
+        }
+    ])
+        .then((depData) => {
+            connection.query(`
+            SELECT * FROM department;
+            `, (err, res) => {
+
+                if (err) throw err;
+                console.table(`\n`);
+                console.table(res);
+            })
+
+            qStart()
+        });
+}
+
+const viewAllRoles = () => {
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'roleName',
+            message: "Select (View Table)",
+            choices: ['View Table']
+        }
+    ])
+        .then((roleData) => {
+            connection.query(`
+            SELECT * FROM role;
+            `, (err, res) => {
+
+                if (err) throw err;
+                console.table(`\n`);
+                console.table(res);
+            })
+
+            qStart()
+        });
+}
+
+const viewAllEms = () => {
+
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'emsName',
+            message: "Select (View Table)",
+            choices: ['View Table']
+        }
+    ])
+        .then((depData) => {
+            connection.query(`
+            SELECT
+            employee.first_name,
+            employee.last_name,
+            role.title,
+            role.salary
+            FROM employee
+            INNER JOIN role
+            ON role_id = role.id
+            ;
+            `, (err, res) => {
+
+                if (err) throw err;
+                console.table(`\n`);
+                console.table(res);
+            })
+
+            qStart()
+        });
+}
+
+
+
+
+
+const viewAll = () => {
+
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'all',
+            message: "Select (View Table)",
+            choices: ['View Table']
+        }
+    ])
+        .then((allData) => {
+            connection.query(`
+            SELECT
+            employee.first_name,
+            employee.last_name,
+            role.title,
+            role.salary,
+            department.name
+            FROM employee
+            INNER JOIN role
+            ON role_id = role.id
+            INNER JOIN department
+            ON role_id = department.id
+            ;
+            `, (err, res) => {
+
+                if (err) throw err;
+                console.table(`\n`);
+                console.table(res);
+            })
+
+            qStart()
+        });
 }
